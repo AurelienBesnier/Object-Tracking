@@ -3,7 +3,10 @@ HAI935I
 
 This is an example of object tracking done with Rust & opencv. Here are some result:
 
-![](tracking.mp4)
+
+https://user-images.githubusercontent.com/46033096/198700665-5f4e8377-282e-48b4-9cbf-a452b23ac82a.mp4
+
+
 
 ## How to run
 
