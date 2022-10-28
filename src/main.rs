@@ -4,7 +4,6 @@ use anyhow::Result; // Automatically handle the error types
 use opencv::{
     imgcodecs,
     imgproc,
-    highgui,
     videoio,
     prelude::*
 };
@@ -13,8 +12,8 @@ use opencv::core::Rect;
 use opencv::core::VecN;
 use opencv::core::Mat;
 use std::fs;
-use std::io;
 
+#[allow(non_snake_case)]
 fn main() -> Result<()> { // Note, this is anyhow::Result
     let directory = "./res/Ghost2";
     let file = "./res/Ghost2/GITS001.bmp";
@@ -37,8 +36,8 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
     let mut endX = 200;
     let mut endY = 180;
 
-    let mut lengthX = endX - startX;
-    let mut lengthY = endY - startY;
+    let lengthX = endX - startX;
+    let lengthY = endY - startY;
 
     let startPoint = Point::new(startX,startY);
     let endPoint = Point::new(endX, endY);
@@ -49,7 +48,7 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                                color,
                                1,
                                imgproc::LINE_8,
-                               0); 
+                               0)?;
     
     let mut img_array: Vec<Mat> = vec![image.clone()]; 
     let mut image2 = Mat::default();
@@ -71,25 +70,17 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
         println!("Tracking in image {}",current_file);
 
         image2 = imgcodecs::imread(&mut current_file, imgcodecs::IMREAD_GRAYSCALE)?;
-
-        let size2 = image2.size()?;
-        let height2 = size2.height;
-        let width2 = size2.width;
         
         let mut ok = false;
         let mut u = 3; let mut v = 3;
 
         let mut xStart = 0; let mut yStart = 0;
-        let mut xEnd = 0; let mut yEnd = 0;
 
         while !ok{
             if startX - u > 0 && endX + u < width 
                 && startY -v > 0 && endY +v < height {
                     xStart = startX - u;
                     yStart = startY - v;
-
-                    xEnd = endX - u;
-                    yEnd = endY - v;
                     ok =true;
                 }
             else {
@@ -102,8 +93,6 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
 
         let mut saveOffsetX = 0;
         let mut saveOffsetY = 0;
-        let mut start_point = Point::new(startX - 1, startY - 1);
-        let mut end_point = Point::new(endX + 1, endY + 1);
 
         for offsetX in -v..v+2 {
             for offsetY in -u..u+2 {
@@ -177,7 +166,7 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                                color,
                                1,
                                imgproc::LINE_8,
-                               0); 
+                               0)?;
 
         }
 

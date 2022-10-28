@@ -4,7 +4,6 @@ use anyhow::Result; // Automatically handle the error types
 use opencv::{
     imgcodecs,
     imgproc,
-    highgui,
     videoio,
     prelude::*
 };
@@ -13,17 +12,17 @@ use opencv::core::Rect;
 use opencv::core::VecN;
 use opencv::core::Mat;
 use std::fs;
-use std::io;
 
+#[allow(non_snake_case)]
 fn main() -> Result<()> { // Note, this is anyhow::Result
-    let directory = "./res/Ghost3";
-    let file = "./res/Ghost3/GITS001.bmp";
+    let directory = "./res/Ghost2";
+    let file = "./res/Ghost2/GITS001.bmp";
 
     //Get the number of files in directory
     let entries = fs::read_dir(directory).unwrap();
     let num_entries = entries.count();
     println!("Number of files: {}", num_entries);
-    
+
     //Get the first file and its dimensions
     let mut image = imgcodecs::imread(file, imgcodecs::IMREAD_GRAYSCALE)?;
     let size = image.size()?;
@@ -37,35 +36,36 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
     let mut endX = 200;
     let mut endY = 180;
 
-    let mut lengthX = endX - startX;
-    let mut lengthY = endY - startY;
+    let lengthX = endX - startX;
+    let lengthY = endY - startY;
 
     let startPoint = Point::new(startX,startY);
     let endPoint = Point::new(endX, endY);
     let color = VecN([250., 2., 250., 0.]);
 
     imgproc::rectangle(&mut image,
-                               Rect::from_points(startPoint,endPoint),  
+                               Rect::from_points(startPoint,endPoint),
                                color,
                                1,
                                imgproc::LINE_8,
-                               0); 
-    
-    let mut img_array: Vec<Mat> = vec![image.clone()]; 
+                               0)?;
+
+    let mut img_array: Vec<Mat> = vec![image.clone()];
     let mut image2 = Mat::default();
 
-    let mut path = "./res/Ghost3/GITS00";
-    for i in 2..num_entries{
+    let mut path = "./res/Ghost2/GITS00";
+    for i in 2..num_entries+1{
         if i>99 {
-           path =  "./res/Ghost3/GITS";
+           path =  "./res/Ghost2/GITS";
         }
         else if i > 9 {
-           path =  "./res/Ghost3/GITS0";
+           path =  "./res/Ghost2/GITS0";
         }
 
         if i != 2 {
             image = image2.clone();
         }
+
 
         let mut current_file = format!("{}{}.bmp",path, i);
         println!("Tracking in image {}",current_file);
@@ -166,7 +166,7 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                                color,
                                1,
                                imgproc::LINE_8,
-                               0); 
+                               0)?;
         }
 
         img_array.push(image2.clone());
@@ -174,8 +174,8 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
     let mut vid = videoio::VideoWriter::new("tracking.avi",videoio::VideoWriter::fourcc('M','P','E','G').unwrap(), 30.0, size, false)?;
 
     for i in 0..img_array.len() {
-        vid.write(&img_array[i]);
+        vid.write(&img_array[i])?;
     }
-    vid.release();
+    vid.release()?;
     Ok(())
 }
