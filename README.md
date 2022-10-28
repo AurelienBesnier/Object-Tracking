@@ -12,6 +12,10 @@ https://user-images.githubusercontent.com/46033096/198710688-62b982f7-0efc-42df-
 
 
 
+https://user-images.githubusercontent.com/46033096/198720800-c6af2c68-54c9-44f2-85c5-7d570a087d43.mp4
+
+
+
 ## How to run
 
 Just use `cargo run --release` and make sure you have opencv c++ installed.
