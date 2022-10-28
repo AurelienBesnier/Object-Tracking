@@ -71,25 +71,17 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
         println!("Tracking in image {}",current_file);
 
         image2 = imgcodecs::imread(&mut current_file, imgcodecs::IMREAD_GRAYSCALE)?;
-
-        let size2 = image2.size()?;
-        let height2 = size2.height;
-        let width2 = size2.width;
         
         let mut ok = false;
         let mut u = 3; let mut v = 3;
 
         let mut xStart = 0; let mut yStart = 0;
-        let mut xEnd = 0; let mut yEnd = 0;
 
         while !ok{
             if startX - u > 0 && endX + u < width 
                 && startY -v > 0 && endY +v < height {
                     xStart = startX - u;
                     yStart = startY - v;
-
-                    xEnd = endX - u;
-                    yEnd = endY - v;
                     ok =true;
                 }
             else {
@@ -102,8 +94,6 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
 
         let mut saveOffsetX = 0;
         let mut saveOffsetY = 0;
-        let mut start_point = Point::new(startX - 1, startY - 1);
-        let mut end_point = Point::new(endX + 1, endY + 1);
 
         for offsetX in -v..v+1 {
             for offsetY in -u..u+1 {
@@ -112,8 +102,8 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                 let mut avg_1 = 0;
                 let mut avg_2 = 0;
 
-                for y in 0..lengthY+1 {
-                    for x in 0..lengthX+1 {
+                for y in 0..lengthY+2 {
+                    for x in 0..lengthX+2 {
                         let val1 = image.at_2d::<u8>(y, x).unwrap();
                         let val2 = image2.at_2d::<u8>(yStart+y+offsetY+v, xStart+x+offsetX+u).unwrap();
                         avg_1 += *val1 as i32;
@@ -126,8 +116,8 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                 let mut sigma1 = 0.0;
                 let mut sigma2 = 0.0;
 
-                for y in 0..lengthY {
-                    for x in 0..lengthX {
+                for y in 0..lengthY +2{
+                    for x in 0..lengthX+2 {
                         let val1 = *image.at_2d::<u8>(y, x).unwrap();
                         let val2 = *image2.at_2d::<u8>(yStart+y+offsetY+v, xStart+x+offsetX+u).unwrap();
                         sigma1 += f64::powf((val1 as f64)-avg_1 as f64, 2.0);
@@ -139,8 +129,8 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                 sigma2 = sigma2 / (lengthX*lengthY) as f64;
 
 
-                for vx in 0..lengthY {
-                    for ux in 0..lengthX {
+                for vx in 0..lengthY +2{
+                    for ux in 0..lengthX +2{
                         val += (sigma1 *sigma2 ) / f64::sqrt(sigma1*sigma2);
                     }
                 }

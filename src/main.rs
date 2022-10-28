@@ -22,7 +22,7 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
     let entries = fs::read_dir(directory).unwrap();
     let num_entries = entries.count();
     println!("Number of files: {}", num_entries);
-    
+
     //Get the first file and its dimensions
     let mut image = imgcodecs::imread(file, imgcodecs::IMREAD_GRAYSCALE)?;
     let size = image.size()?;
@@ -44,13 +44,13 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
     let color = VecN([250., 2., 250., 0.]);
 
     imgproc::rectangle(&mut image,
-                               Rect::from_points(startPoint,endPoint),  
+                               Rect::from_points(startPoint,endPoint),
                                color,
                                1,
                                imgproc::LINE_8,
                                0)?;
-    
-    let mut img_array: Vec<Mat> = vec![image.clone()]; 
+
+    let mut img_array: Vec<Mat> = vec![image.clone()];
     let mut image2 = Mat::default();
 
     let mut path = "./res/Ghost2/GITS00";
@@ -70,14 +70,14 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
         println!("Tracking in image {}",current_file);
 
         image2 = imgcodecs::imread(&mut current_file, imgcodecs::IMREAD_GRAYSCALE)?;
-        
+
         let mut ok = false;
         let mut u = 3; let mut v = 3;
 
         let mut xStart = 0; let mut yStart = 0;
 
         while !ok{
-            if startX - u > 0 && endX + u < width 
+            if startX - u > 0 && endX + u < width
                 && startY -v > 0 && endY +v < height {
                     xStart = startX - u;
                     yStart = startY - v;
@@ -162,7 +162,7 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
             let newEnd = Point::new(endX,endY);
 
             imgproc::rectangle(&mut image2,
-                               Rect::from_points(newStart,newEnd),  
+                               Rect::from_points(newStart,newEnd),
                                color,
                                1,
                                imgproc::LINE_8,
