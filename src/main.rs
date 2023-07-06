@@ -5,18 +5,22 @@ use opencv::{
     imgcodecs,
     imgproc,
     videoio,
+    highgui,
     prelude::*
 };
-use opencv::core::Point;
+use opencv::core::{Point};
 use opencv::core::Rect;
 use opencv::core::VecN;
 use opencv::core::Mat;
 use std::fs;
+use std::thread::sleep;
+use std::time::Duration;
+use opencv::highgui::{imshow, wait_key, WINDOW_AUTOSIZE};
 
 #[allow(non_snake_case)]
 fn main() -> Result<()> { // Note, this is anyhow::Result
-    let directory = "./res/Ghost2";
-    let file = "./res/Ghost2/GITS001.bmp";
+    let directory = "./res/Ghost4";
+    let file = "./res/Ghost4/GITS001.bmp";
 
     //Get the number of files in directory
     let entries = fs::read_dir(directory).unwrap();
@@ -30,36 +34,46 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
     let height = size.height;
     println!("Dimensions of files: {}x{}", width, height);
 
-    let mut startX = 170;
-    let mut startY = 150;
 
-    let mut endX = 200;
-    let mut endY = 180;
+
+    let roi = highgui::select_roi(
+        &mut image,
+        true,
+        false
+    ).unwrap();
+
+
+    let mut startX = roi.x;
+    let mut startY = roi.y;
+
+    let mut endX = roi.x + roi.width;
+    let mut endY = roi.y + roi.height;
 
     let lengthX = endX - startX;
     let lengthY = endY - startY;
 
-    let startPoint = Point::new(startX,startY);
-    let endPoint = Point::new(endX, endY);
     let color = VecN([250., 2., 250., 0.]);
 
     imgproc::rectangle(&mut image,
-                               Rect::from_points(startPoint,endPoint),
-                               color,
+                               roi,
+                                color,
                                1,
                                imgproc::LINE_8,
                                0)?;
 
+    highgui::named_window("Result Display",WINDOW_AUTOSIZE)?;
+    imshow("Result Display",&mut image)?;
+    wait_key(1).expect("Wait key crashed");
     let mut img_array: Vec<Mat> = vec![image.clone()];
     let mut image2 = Mat::default();
 
-    let mut path = "./res/Ghost2/GITS00";
+    let mut path = "./res/Ghost4/GITS00";
     for i in 2..num_entries+1{
         if i>99 {
-           path =  "./res/Ghost2/GITS";
+           path =  "./res/Ghost4/GITS";
         }
         else if i > 9 {
-           path =  "./res/Ghost2/GITS0";
+           path =  "./res/Ghost4/GITS0";
         }
 
         if i != 2 {
@@ -168,11 +182,14 @@ fn main() -> Result<()> { // Note, this is anyhow::Result
                                imgproc::LINE_8,
                                0)?;
 
+
         }
+        imshow("Result Display",&mut image2)?;
+        wait_key(100).expect("Wait key crashed");
 
         img_array.push(image2.clone());
     }
-    let mut vid = videoio::VideoWriter::new("tracking.avi",videoio::VideoWriter::fourcc('M','P','E','G').unwrap(), 15.0, size, false)?;
+    let mut vid = videoio::VideoWriter::new("tracking.avi",videoio::VideoWriter::fourcc('M','P','E','G').unwrap(), 30.0, size, false)?;
 
     for i in 0..img_array.len() {
         vid.write(&img_array[i])?;

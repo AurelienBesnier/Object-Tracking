@@ -5,6 +5,7 @@ use opencv::{
     imgcodecs,
     imgproc,
     videoio,
+    highgui,
     prelude::*
 };
 use opencv::core::Point;
